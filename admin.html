@@ -1,46 +1,241 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Widget Admin</title>
+    <script>
+        window.onerror = function (msg, url, line, col, error) {
+            alert("Error: " + msg + "\nLine: " + line);
+        };
+    </script>
     <style>
-        :root { --primary: #007aff; --bg: #f2f2f7; --card-bg: #fff; --text: #333; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; max-width: 900px; margin: 0 auto; }
-        h1 { font-size: 1.5rem; margin-bottom: 20px; text-align: center; }
-        .card { background: var(--card-bg); padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }
-        label { display: block; font-weight: 500; margin-bottom: 5px; font-size: 0.9rem; color: #666; }
-        input[type="text"], input[type="password"], input[type="date"], select { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; box-sizing: border-box; }
-        input[type="color"] { width: 100%; height: 40px; border: none; border-radius: 8px; padding: 0; margin-bottom: 15px; }
-        button { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; }
-        button:disabled { background: #ccc; }
-        button.secondary { background: #e5e5ea; color: #333; }
-        button.danger { background: #ff3b30; color: white; }
-        button.small { padding: 8px 12px; font-size: 0.9rem; width: auto; }
-        .hidden { display: none; }
-        .tabs { display: flex; gap: 10px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 5px; }
-        .tab { padding: 10px 20px; background: #e5e5ea; border-radius: 20px; cursor: pointer; white-space: nowrap; font-weight: 500; }
-        .tab.active { background: var(--primary); color: white; }
-        .preset-item { border: 1px solid #eee; padding: 15px; border-radius: 8px; margin-bottom: 10px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
-        .preset-item:hover { background: #fafafa; }
-        .row { display: flex; gap: 10px; }
-        .col { flex: 1; }
-        
+        :root {
+            --primary: #007aff;
+            --bg: #f2f2f7;
+            --card-bg: #fff;
+            --text: #333;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        input[type="text"],
+        input[type="password"],
+        input[type="date"],
+        select {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+
+        input[type="color"] {
+            width: 100%;
+            height: 40px;
+            border: none;
+            border-radius: 8px;
+            padding: 0;
+            margin-bottom: 15px;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        button:disabled {
+            background: #ccc;
+        }
+
+        button.secondary {
+            background: #e5e5ea;
+            color: #333;
+        }
+
+        button.danger {
+            background: #ff3b30;
+            color: white;
+        }
+
+        button.small {
+            padding: 8px 12px;
+            font-size: 0.9rem;
+            width: auto;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            background: #e5e5ea;
+            border-radius: 20px;
+            cursor: pointer;
+            white-space: nowrap;
+            font-weight: 500;
+        }
+
+        .tab.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .preset-item {
+            border: 1px solid #eee;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .preset-item:hover {
+            background: #fafafa;
+        }
+
+        .row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .col {
+            flex: 1;
+        }
+
         /* Calendar Grid */
-        .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
-        .cal-day { background: white; border-radius: 6px; padding: 5px; min-height: 80px; position: relative; cursor: pointer; border: 1px solid #eee; }
-        .cal-day:hover { border-color: var(--primary); }
-        .cal-day.today { background: #eef7ff; font-weight: bold; }
-        .cal-num { font-size: 0.8rem; color: #888; margin-bottom: 5px; text-align: right; }
-        .cal-event { font-size: 0.75rem; padding: 4px; border-radius: 4px; color: white; background: var(--primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .cal-default { background: #e5e5ea; color: #333; }
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+        }
+
+        .cal-day {
+            background: white;
+            border-radius: 6px;
+            padding: 5px;
+            min-height: 80px;
+            position: relative;
+            cursor: pointer;
+            border: 1px solid #eee;
+        }
+
+        .cal-day:hover {
+            border-color: var(--primary);
+        }
+
+        .cal-day.today {
+            background: #eef7ff;
+            font-weight: bold;
+        }
+
+        .cal-num {
+            font-size: 0.8rem;
+            color: #888;
+            margin-bottom: 5px;
+            text-align: right;
+        }
+
+        .cal-event {
+            font-size: 0.75rem;
+            padding: 4px;
+            border-radius: 4px;
+            color: white;
+            background: var(--primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .cal-default {
+            background: #e5e5ea;
+            color: #333;
+        }
 
         /* Modal */
-        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 1000; }
-        .modal { background: white; padding: 25px; border-radius: 12px; width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
     </style>
 </head>
+
 <body>
     <h1>Day Display Admin</h1>
 
@@ -76,7 +271,8 @@
             <div class="card">
                 <h3>Manage Presets</h3>
                 <div id="presets-list"></div>
-                <button onclick="createNewPreset()" class="secondary" style="margin-top: 10px;">+ Create New Preset</button>
+                <button onclick="createNewPreset()" class="secondary" style="margin-top: 10px;">+ Create New
+                    Preset</button>
             </div>
         </div>
 
@@ -85,7 +281,8 @@
             <div class="card">
                 <h3>Style Presets</h3>
                 <div id="styles-list"></div>
-                <button onclick="createNewStyle()" class="secondary" style="margin-top: 10px;">+ Create New Style</button>
+                <button onclick="createNewStyle()" class="secondary" style="margin-top: 10px;">+ Create New
+                    Style</button>
             </div>
         </div>
 
@@ -99,7 +296,8 @@
 
         <button onclick="pushToGitHub()" id="save-btn" style="margin-top: 20px;">Push Changes to Live Site</button>
         <div id="status"></div>
-        <button onclick="logout()" style="background: transparent; color: #ff3b30; margin-top: 20px; font-size: 0.9rem;">Logout</button>
+        <button onclick="logout()"
+            style="background: transparent; color: #ff3b30; margin-top: 20px; font-size: 0.9rem;">Logout</button>
     </div>
 
     <!-- MODAL: ADD EVENT -->
@@ -107,7 +305,7 @@
         <div class="modal">
             <h3 id="modal-title">Schedule for [Date]</h3>
             <input type="hidden" id="modal-date">
-            
+
             <label>Action</label>
             <select id="modal-action" onchange="toggleModalFields()">
                 <option value="preset">Use Existing Preset</option>
@@ -156,15 +354,21 @@
             <label>Name</label> <input type="text" id="edit-p-name">
             <label>Message</label> <input type="text" id="edit-p-msg">
             <label>Subtext</label> <input type="text" id="edit-p-sub">
-            <label>Apply Style (Optional)</label> 
+            <label>Apply Style (Optional)</label>
             <select id="edit-p-style" onchange="applyStyleToEditor(this.value)">
                 <option value="">-- Select --</option>
             </select>
-            
+
             <details>
                 <summary style="margin:10px 0; cursor:pointer;">Advanced Color Overrides</summary>
-                <div class="row"><div class="col"><label>Text</label><input type="color" id="edit-p-text"></div><div class="col"><label>BG</label><input type="color" id="edit-p-bg"></div></div>
-                <div class="row"><div class="col"><label>G-Start</label><input type="color" id="edit-p-gs"></div><div class="col"><label>G-End</label><input type="color" id="edit-p-ge"></div></div>
+                <div class="row">
+                    <div class="col"><label>Text</label><input type="color" id="edit-p-text"></div>
+                    <div class="col"><label>BG</label><input type="color" id="edit-p-bg"></div>
+                </div>
+                <div class="row">
+                    <div class="col"><label>G-Start</label><input type="color" id="edit-p-gs"></div>
+                    <div class="col"><label>G-End</label><input type="color" id="edit-p-ge"></div>
+                </div>
             </details>
 
             <div class="row">
@@ -180,8 +384,14 @@
             <h3>Edit Style</h3>
             <input type="hidden" id="edit-style-id">
             <label>Name</label> <input type="text" id="edit-s-name">
-            <div class="row"><div class="col"><label>Text</label><input type="color" id="edit-s-text"></div><div class="col"><label>BG</label><input type="color" id="edit-s-bg"></div></div>
-            <div class="row"><div class="col"><label>G-Start</label><input type="color" id="edit-s-gs"></div><div class="col"><label>G-End</label><input type="color" id="edit-s-ge"></div></div>
+            <div class="row">
+                <div class="col"><label>Text</label><input type="color" id="edit-s-text"></div>
+                <div class="col"><label>BG</label><input type="color" id="edit-s-bg"></div>
+            </div>
+            <div class="row">
+                <div class="col"><label>G-Start</label><input type="color" id="edit-s-gs"></div>
+                <div class="col"><label>G-End</label><input type="color" id="edit-s-ge"></div>
+            </div>
             <div class="row">
                 <button onclick="saveStyle()" class="col">Save</button>
                 <button onclick="closeModal('style-editor-modal')" class="col secondary">Cancel</button>
@@ -191,19 +401,19 @@
 
     <script>
         // CONFIG
-        const REPO_OWNER = 'mattspruiell'; 
+        const REPO_OWNER = 'mattspruiell';
         const REPO_NAME = 'classroomscreen-day-display';
         const CONFIG_PATH = 'config.json';
-        
+
         let currentState = { presets: {}, defaults: {}, calendar: {}, style_presets: {} };
         let currentSha = null;
         let visibleMonth = new Date();
 
         // INIT
-        function loadToken() { const t=localStorage.getItem('gh_token'); if(t){ document.getElementById('gh-token').value=t; showApp(); } }
+        function loadToken() { const t = localStorage.getItem('gh_token'); if (t) { document.getElementById('gh-token').value = t; showApp(); } }
         function saveToken() { localStorage.setItem('gh_token', document.getElementById('gh-token').value.trim()); showApp(); }
         function logout() { localStorage.removeItem('gh_token'); location.reload(); }
-        
+
         async function showApp() {
             document.getElementById('auth-section').classList.add('hidden');
             document.getElementById('app-section').classList.remove('hidden');
@@ -219,9 +429,9 @@
                 const data = await response.json();
                 currentSha = data.sha;
                 currentState = JSON.parse(atob(data.content));
-                if(!currentState.style_presets) currentState.style_presets = {}; // Migration
+                if (!currentState.style_presets) currentState.style_presets = {}; // Migration
                 renderAll();
-            } catch (e) { console.error(e); if(e.message.includes('403')) alert('Auth Failed'); }
+            } catch (e) { console.error(e); if (e.message.includes('403')) alert('Auth Failed'); }
         }
 
         // TABS & RENDERING
@@ -230,7 +440,7 @@
             document.getElementById(id).classList.remove('hidden');
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             event.target.classList.add('active');
-            if(id === 'tab-calendar') renderCalendarGrid();
+            if (id === 'tab-calendar') renderCalendarGrid();
         }
 
         function renderAll() {
@@ -250,37 +460,37 @@
         function renderCalendarGrid() {
             const grid = document.getElementById('calendar-grid');
             grid.innerHTML = '';
-            
+
             const month = visibleMonth.getMonth();
             const year = visibleMonth.getFullYear();
             const firstDay = new Date(year, month, 1);
             const startingDay = firstDay.getDay(); // 0 = Sun
             const daysInMonth = new Date(year, month + 1, 0).getDate();
-            
+
             document.getElementById('cal-month-title').textContent = visibleMonth.toLocaleString('default', { month: 'long', year: 'numeric' });
 
             // Empty slots
-            for(let i=0; i<startingDay; i++) { grid.appendChild(createDayEl('', 'disabled')); }
+            for (let i = 0; i < startingDay; i++) { grid.appendChild(createDayEl('', 'disabled')); }
 
             // Days
-            for(let d=1; d<=daysInMonth; d++) {
-                const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+            for (let d = 1; d <= daysInMonth; d++) {
+                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
                 const presetId = currentState.calendar[dateStr];
-                
+
                 const el = createDayEl(d, '', () => openEventModal(dateStr));
-                
+
                 // Show Event
-                if(presetId) {
+                if (presetId) {
                     const preset = currentState.presets[presetId];
-                    if(preset) {
+                    if (preset) {
                         el.innerHTML += `<div class="cal-event" style="background:${preset.theme.gradientStart}">${preset.name}</div>`;
                     }
                 } else {
                     // Show Default (Faint)
-                    const dayOfWeek = new Date(dateStr).toLocaleString('en-us', {weekday:'long'});
+                    const dayOfWeek = new Date(dateStr).toLocaleString('en-us', { weekday: 'long' });
                     const defPresetId = currentState.defaults[dayOfWeek];
-                    if(defPresetId && currentState.presets[defPresetId]) {
-                         el.innerHTML += `<div class="cal-event cal-default">${currentState.presets[defPresetId].name}</div>`;
+                    if (defPresetId && currentState.presets[defPresetId]) {
+                        el.innerHTML += `<div class="cal-event cal-default">${currentState.presets[defPresetId].name}</div>`;
                     }
                 }
                 grid.appendChild(el);
@@ -290,8 +500,8 @@
         function createDayEl(num, className, onClick) {
             const d = document.createElement('div');
             d.className = `cal-day ${className}`;
-            if(num) d.innerHTML = `<div class="cal-num">${num}</div>`;
-            if(onClick) d.onclick = onClick;
+            if (num) d.innerHTML = `<div class="cal-num">${num}</div>`;
+            if (onClick) d.onclick = onClick;
             return d;
         }
 
@@ -331,8 +541,8 @@
                 // Create ephemeral preset
                 targetPresetId = 'evt_' + Date.now();
                 const styleId = document.getElementById('modal-style-select').value;
-                const style = currentState.style_presets[styleId] || { theme: { textColor:'#000', backgroundColor:'#fff' } };
-                
+                const style = currentState.style_presets[styleId] || { theme: { textColor: '#000', backgroundColor: '#fff' } };
+
                 currentState.presets[targetPresetId] = {
                     name: `Ad-hoc ${dateStr}`,
                     type: 'adhoc',
@@ -349,13 +559,13 @@
                     const until = new Date(document.getElementById('modal-until').value);
                     let curr = new Date(dateStr);
                     // Add 7 days loop
-                    while(curr < until) {
+                    while (curr < until) {
                         curr.setDate(curr.getDate() + 7);
-                        if(curr > until) break;
+                        if (curr > until) break;
                         datesToSet.push(curr.toISOString().split('T')[0]);
                     }
                 }
-                
+
                 datesToSet.forEach(d => currentState.calendar[d] = targetPresetId);
             }
 
@@ -366,10 +576,10 @@
 
         // --- PRESETS & STYLES LISTS ---
         function renderPresetsList() {
-            const c = document.getElementById('presets-list'); c.innerHTML='';
+            const c = document.getElementById('presets-list'); c.innerHTML = '';
             Object.keys(currentState.presets).forEach(k => {
                 const p = currentState.presets[k];
-                if(p.type === 'adhoc') return; // Hide adhoc from main list
+                if (p.type === 'adhoc') return; // Hide adhoc from main list
                 const d = document.createElement('div');
                 d.className = 'preset-item';
                 d.innerHTML = `<span><strong>${p.name}</strong> (${p.message})</span> <div><button class="small secondary" onclick="copyPreset('${k}')">Copy</button> <button class="small" onclick="editPreset('${k}')">Edit</button></div>`;
@@ -377,7 +587,7 @@
             });
         }
         function renderStylesList() {
-            const c = document.getElementById('styles-list'); c.innerHTML='';
+            const c = document.getElementById('styles-list'); c.innerHTML = '';
             Object.keys(currentState.style_presets).forEach(k => {
                 const s = currentState.style_presets[k];
                 const d = document.createElement('div');
@@ -388,16 +598,16 @@
         }
         function renderDefaultsList() {
             const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-            const c = document.getElementById('defaults-list'); c.innerHTML='';
+            const c = document.getElementById('defaults-list'); c.innerHTML = '';
             days.forEach(day => {
                 const sel = document.createElement('select');
                 sel.innerHTML = '<option value="">None</option>';
                 Object.keys(currentState.presets).forEach(k => {
-                    if(currentState.presets[k].type !== 'adhoc')
-                        sel.innerHTML += `<option value="${k}" ${currentState.defaults[day]===k?'selected':''}>${currentState.presets[k].name}</option>`;
+                    if (currentState.presets[k].type !== 'adhoc')
+                        sel.innerHTML += `<option value="${k}" ${currentState.defaults[day] === k ? 'selected' : ''}>${currentState.presets[k].name}</option>`;
                 });
                 sel.onchange = (e) => currentState.defaults[day] = e.target.value;
-                const d = document.createElement('div'); d.innerHTML=`<label>${day}</label>`; d.appendChild(sel);
+                const d = document.createElement('div'); d.innerHTML = `<label>${day}</label>`; d.appendChild(sel);
                 c.appendChild(d);
             });
         }
@@ -439,7 +649,7 @@
         }
         function createNewPreset() {
             const id = 'preset_' + Date.now();
-            currentState.presets[id] = { name: "New Preset", type:"standard", message: "X", theme: { textColor:"#000", backgroundColor:"#fff" } };
+            currentState.presets[id] = { name: "New Preset", type: "standard", message: "X", theme: { textColor: "#000", backgroundColor: "#fff" } };
             editPreset(id);
         }
 
@@ -468,11 +678,11 @@
         }
         function createNewStyle() {
             const id = 'style_' + Date.now();
-            currentState.style_presets[id] = { name: "New Style", theme: { textColor:"#000", backgroundColor:"#fff" } };
+            currentState.style_presets[id] = { name: "New Style", theme: { textColor: "#000", backgroundColor: "#fff" } };
             editStyle(id);
         }
         function applyStyleToEditor(styleId) {
-            if(!styleId) return;
+            if (!styleId) return;
             const s = currentState.style_presets[styleId];
             document.getElementById('edit-p-text').value = s.theme.textColor;
             document.getElementById('edit-p-bg').value = s.theme.backgroundColor;
@@ -493,7 +703,7 @@
             const presets = document.getElementById('modal-preset-select');
             presets.innerHTML = '';
             Object.keys(currentState.presets).forEach(k => {
-                if(currentState.presets[k].type !== 'adhoc')
+                if (currentState.presets[k].type !== 'adhoc')
                     presets.innerHTML += `<option value="${k}">${currentState.presets[k].name}</option>`;
             });
         }
@@ -508,9 +718,9 @@
                     headers: { 'Authorization': `token ${localStorage.getItem('gh_token')}`, 'Content-Type': 'application/json' },
                     body: JSON.stringify({ message: 'Update config via Admin Phase 4', content: content, sha: currentSha })
                 });
-                if(response.ok) { 
-                    const data = await response.json(); currentSha = data.content.sha; 
-                    alert('Saved Successfully!'); 
+                if (response.ok) {
+                    const data = await response.json(); currentSha = data.content.sha;
+                    alert('Saved Successfully!');
                 } else alert('Save Failed');
             } catch (e) { alert('Error: ' + e.message); }
             btn.disabled = false;
@@ -520,4 +730,5 @@
         loadToken();
     </script>
 </body>
+
 </html>
