@@ -7,7 +7,7 @@
     <title>Widget Admin</title>
     <script>
         window.onerror = function (msg, url, line, col, error) {
-            alert("Error: " + msg + "\nLine: " + line);
+            alert("GLOBAL ERROR: " + msg + "\nLine: " + line);
         };
     </script>
     <style>
@@ -248,10 +248,10 @@
 
     <div id="app-section" class="hidden">
         <div class="tabs">
-            <div class="tab" onclick="switchTab('tab-calendar')">Calendar</div>
-            <div class="tab" onclick="switchTab('tab-presets')">Presets</div>
-            <div class="tab" onclick="switchTab('tab-styles')">Style Presets</div>
-            <div class="tab" onclick="switchTab('tab-defaults')">Weekly Defaults</div>
+            <div class="tab" onclick="switchTabSafe('tab-calendar')">Calendar</div>
+            <div class="tab" onclick="switchTabSafe('tab-presets')">Presets</div>
+            <div class="tab" onclick="switchTabSafe('tab-styles')">Style Presets</div>
+            <div class="tab" onclick="switchTabSafe('tab-defaults')">Weekly Defaults</div>
         </div>
 
         <!-- CALENDAR TAB -->
@@ -346,7 +346,7 @@
         </div>
     </div>
 
-    <!-- PRESET EDITOR (Inline overlay logic simplified) -->
+    <!-- PRESET EDITOR -->
     <div id="preset-editor-modal" class="modal-overlay hidden">
         <div class="modal">
             <h3>Edit Preset</h3>
@@ -415,9 +415,11 @@
         function logout() { localStorage.removeItem('gh_token'); location.reload(); }
 
         async function showApp() {
-            document.getElementById('auth-section').classList.add('hidden');
-            document.getElementById('app-section').classList.remove('hidden');
-            await loadConfig();
+            try {
+                document.getElementById('auth-section').classList.add('hidden');
+                document.getElementById('app-section').classList.remove('hidden');
+                await loadConfig();
+            } catch (e) { alert("Init Error: " + e.message); }
         }
 
         async function loadConfig() {
@@ -425,76 +427,79 @@
                 const response = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${CONFIG_PATH}`, {
                     headers: { 'Authorization': `token ${localStorage.getItem('gh_token')}` }
                 });
+
                 if (!response.ok) throw new Error(`${response.status}`);
+
                 const data = await response.json();
                 currentSha = data.sha;
                 currentState = JSON.parse(atob(data.content));
-                if (!currentState.style_presets) currentState.style_presets = {}; // Migration
+
+                if (!currentState.style_presets) currentState.style_presets = {};
+
                 renderAll();
-            } catch (e) { console.error(e); if (e.message.includes('403')) alert('Auth Failed'); }
+            } catch (e) {
+                console.error(e);
+                if (e.message.includes('403') || e.message.includes('404')) alert('Access Error: ' + e.message);
+                else alert("Load Config Failed: " + e.message);
+            }
         }
 
-        // TABS & RENDERING
-        function switchTab(id) {
-            document.querySelectorAll('#app-section > div[id^="tab-"]').forEach(d => d.classList.add('hidden'));
-            document.getElementById(id).classList.remove('hidden');
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            event.target.classList.add('active');
-            if (id === 'tab-calendar') renderCalendarGrid();
+        function switchTabSafe(id) {
+            try {
+                document.querySelectorAll('#app-section > div[id^="tab-"]').forEach(d => d.classList.add('hidden'));
+                document.getElementById(id).classList.remove('hidden');
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                if (event) event.target.classList.add('active');
+                if (id === 'tab-calendar') renderCalendarGrid();
+            } catch (e) { alert('Tab Switch Error: ' + e.message); }
         }
 
         function renderAll() {
-            renderPresetsList();
-            renderStylesList();
-            renderDefaultsList();
-            renderCalendarGrid();
-            updateDropdowns();
-        }
-
-        // --- CALENDAR LOGIC ---
-        function changeMonth(delta) {
-            visibleMonth.setMonth(visibleMonth.getMonth() + delta);
-            renderCalendarGrid();
+            try {
+                renderPresetsList();
+                renderStylesList();
+                renderDefaultsList();
+                renderCalendarGrid();
+                updateDropdowns();
+            } catch (e) { alert("Render Error: " + e.message); }
         }
 
         function renderCalendarGrid() {
-            const grid = document.getElementById('calendar-grid');
-            grid.innerHTML = '';
+            try {
+                const grid = document.getElementById('calendar-grid');
+                grid.innerHTML = '';
 
-            const month = visibleMonth.getMonth();
-            const year = visibleMonth.getFullYear();
-            const firstDay = new Date(year, month, 1);
-            const startingDay = firstDay.getDay(); // 0 = Sun
-            const daysInMonth = new Date(year, month + 1, 0).getDate();
+                const month = visibleMonth.getMonth();
+                const year = visibleMonth.getFullYear();
+                const firstDay = new Date(year, month, 1);
+                const startingDay = firstDay.getDay();
+                const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-            document.getElementById('cal-month-title').textContent = visibleMonth.toLocaleString('default', { month: 'long', year: 'numeric' });
+                document.getElementById('cal-month-title').textContent = visibleMonth.toLocaleString('default', { month: 'long', year: 'numeric' });
 
-            // Empty slots
-            for (let i = 0; i < startingDay; i++) { grid.appendChild(createDayEl('', 'disabled')); }
+                for (let i = 0; i < startingDay; i++) { grid.appendChild(createDayEl('', 'disabled')); }
 
-            // Days
-            for (let d = 1; d <= daysInMonth; d++) {
-                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-                const presetId = currentState.calendar[dateStr];
+                for (let d = 1; d <= daysInMonth; d++) {
+                    const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+                    const presetId = currentState.calendar[dateStr];
 
-                const el = createDayEl(d, '', () => openEventModal(dateStr));
+                    const el = createDayEl(d, '', () => openEventModal(dateStr));
 
-                // Show Event
-                if (presetId) {
-                    const preset = currentState.presets[presetId];
-                    if (preset) {
-                        el.innerHTML += `<div class="cal-event" style="background:${preset.theme.gradientStart}">${preset.name}</div>`;
+                    if (presetId) {
+                        const preset = currentState.presets[presetId];
+                        if (preset) {
+                            el.innerHTML += `<div class="cal-event" style="background:${preset.theme.gradientStart}">${preset.name}</div>`;
+                        }
+                    } else {
+                        const dayOfWeek = new Date(dateStr).toLocaleString('en-us', { weekday: 'long' });
+                        const defPresetId = currentState.defaults[dayOfWeek];
+                        if (defPresetId && currentState.presets[defPresetId]) {
+                            el.innerHTML += `<div class="cal-event cal-default">${currentState.presets[defPresetId].name}</div>`;
+                        }
                     }
-                } else {
-                    // Show Default (Faint)
-                    const dayOfWeek = new Date(dateStr).toLocaleString('en-us', { weekday: 'long' });
-                    const defPresetId = currentState.defaults[dayOfWeek];
-                    if (defPresetId && currentState.presets[defPresetId]) {
-                        el.innerHTML += `<div class="cal-event cal-default">${currentState.presets[defPresetId].name}</div>`;
-                    }
+                    grid.appendChild(el);
                 }
-                grid.appendChild(el);
-            }
+            } catch (e) { alert("Cal Render Error: " + e.message); }
         }
 
         function createDayEl(num, className, onClick) {
@@ -505,81 +510,83 @@
             return d;
         }
 
-        // --- EVENT MODAL ---
+        function changeMonth(delta) {
+            visibleMonth.setMonth(visibleMonth.getMonth() + delta);
+            renderCalendarGrid();
+        }
+
         function openEventModal(dateStr) {
-            document.getElementById('modal-title').textContent = `Schedule for ${dateStr}`;
-            document.getElementById('modal-date').value = dateStr;
-            document.getElementById('modal-action').value = currentState.calendar[dateStr] ? 'preset' : 'preset';
-            toggleModalFields();
-            document.getElementById('event-modal').classList.remove('hidden');
+            try {
+                document.getElementById('modal-title').textContent = `Schedule for ${dateStr}`;
+                document.getElementById('modal-date').value = dateStr;
+                document.getElementById('modal-action').value = 'preset';
+                toggleModalFields();
+                document.getElementById('event-modal').classList.remove('hidden');
+            } catch (e) { alert("Open Modal Error: " + e.message); }
         }
 
         function toggleModalFields() {
             const action = document.getElementById('modal-action').value;
-            const isPreset = action === 'preset';
-            const isAdhoc = action === 'adhoc';
-            document.getElementById('field-preset').className = isPreset ? '' : 'hidden';
-            document.getElementById('field-adhoc').className = isAdhoc ? '' : 'hidden';
+            document.getElementById('field-preset').className = (action === 'preset') ? '' : 'hidden';
+            document.getElementById('field-adhoc').className = (action === 'adhoc') ? '' : 'hidden';
         }
 
         function toggleRecurFields() {
             const recur = document.getElementById('modal-recur').value;
-            document.getElementById('field-until').className = recur !== 'none' ? '' : 'hidden';
+            document.getElementById('field-until').className = (recur !== 'none') ? '' : 'hidden';
         }
 
         function saveEvent() {
-            const dateStr = document.getElementById('modal-date').value;
-            const action = document.getElementById('modal-action').value;
-            const recur = document.getElementById('modal-recur').value;
-            let targetPresetId = null;
+            try {
+                const dateStr = document.getElementById('modal-date').value;
+                const action = document.getElementById('modal-action').value;
+                const recur = document.getElementById('modal-recur').value;
+                let targetPresetId = null;
 
-            if (action === 'clear') {
-                delete currentState.calendar[dateStr]; // Handle recurrence? Complexity... just delete single for now
-            } else if (action === 'preset') {
-                targetPresetId = document.getElementById('modal-preset-select').value;
-            } else if (action === 'adhoc') {
-                // Create ephemeral preset
-                targetPresetId = 'evt_' + Date.now();
-                const styleId = document.getElementById('modal-style-select').value;
-                const style = currentState.style_presets[styleId] || { theme: { textColor: '#000', backgroundColor: '#fff' } };
+                if (action === 'clear') {
+                    delete currentState.calendar[dateStr];
+                } else if (action === 'preset') {
+                    targetPresetId = document.getElementById('modal-preset-select').value;
+                } else if (action === 'adhoc') {
+                    targetPresetId = 'evt_' + Date.now();
+                    const styleId = document.getElementById('modal-style-select').value;
+                    const style = currentState.style_presets[styleId] || { theme: { textColor: '#000', backgroundColor: '#fff' } };
 
-                currentState.presets[targetPresetId] = {
-                    name: `Ad-hoc ${dateStr}`,
-                    type: 'adhoc',
-                    message: document.getElementById('modal-adhoc-msg').value,
-                    subtext: document.getElementById('modal-adhoc-sub').value,
-                    theme: { ...style.theme }
-                };
-            }
-
-            if (targetPresetId) {
-                // Handle Recurrence
-                const datesToSet = [dateStr];
-                if (recur === 'weekly') {
-                    const until = new Date(document.getElementById('modal-until').value);
-                    let curr = new Date(dateStr);
-                    // Add 7 days loop
-                    while (curr < until) {
-                        curr.setDate(curr.getDate() + 7);
-                        if (curr > until) break;
-                        datesToSet.push(curr.toISOString().split('T')[0]);
-                    }
+                    currentState.presets[targetPresetId] = {
+                        name: `Ad-hoc ${dateStr}`,
+                        type: 'adhoc',
+                        message: document.getElementById('modal-adhoc-msg').value,
+                        subtext: document.getElementById('modal-adhoc-sub').value,
+                        theme: { ...style.theme } // copy theme
+                    };
                 }
 
-                datesToSet.forEach(d => currentState.calendar[d] = targetPresetId);
-            }
-
-            closeModal('event-modal');
-            renderAll();
+                if (targetPresetId) {
+                    const datesToSet = [dateStr];
+                    if (recur === 'weekly') {
+                        const untilVal = document.getElementById('modal-until').value;
+                        if (untilVal) {
+                            const until = new Date(untilVal);
+                            let curr = new Date(dateStr);
+                            while (curr < until) {
+                                curr.setDate(curr.getDate() + 7);
+                                if (curr > until) break;
+                                datesToSet.push(curr.toISOString().split('T')[0]);
+                            }
+                        }
+                    }
+                    datesToSet.forEach(d => currentState.calendar[d] = targetPresetId);
+                }
+                closeModal('event-modal');
+                renderAll();
+            } catch (e) { alert("Save Event Error: " + e.message); }
         }
 
-
-        // --- PRESETS & STYLES LISTS ---
         function renderPresetsList() {
             const c = document.getElementById('presets-list'); c.innerHTML = '';
             Object.keys(currentState.presets).forEach(k => {
                 const p = currentState.presets[k];
-                if (p.type === 'adhoc') return; // Hide adhoc from main list
+                if (p.type === 'adhoc') return;
                 const d = document.createElement('div');
                 d.className = 'preset-item';
                 d.innerHTML = `<span><strong>${p.name}</strong> (${p.message})</span> <div><button class="small secondary" onclick="copyPreset('${k}')">Copy</button> <button class="small" onclick="editPreset('${k}')">Edit</button></div>`;
@@ -612,40 +619,45 @@
             });
         }
 
-        // --- EDITORS ---
         function editPreset(k) {
-            const p = currentState.presets[k];
-            document.getElementById('edit-preset-id').value = k;
-            document.getElementById('edit-p-name').value = p.name;
-            document.getElementById('edit-p-msg').value = p.message;
-            document.getElementById('edit-p-sub').value = p.subtext || '';
-            document.getElementById('edit-p-text').value = p.theme.textColor;
-            document.getElementById('edit-p-bg').value = p.theme.backgroundColor;
-            document.getElementById('edit-p-gs').value = p.theme.gradientStart;
-            document.getElementById('edit-p-ge').value = p.theme.gradientEnd;
-            document.getElementById('preset-editor-modal').classList.remove('hidden');
+            try {
+                const p = currentState.presets[k];
+                document.getElementById('edit-preset-id').value = k;
+                document.getElementById('edit-p-name').value = p.name;
+                document.getElementById('edit-p-msg').value = p.message;
+                document.getElementById('edit-p-sub').value = p.subtext || '';
+                document.getElementById('edit-p-text').value = p.theme.textColor;
+                document.getElementById('edit-p-bg').value = p.theme.backgroundColor;
+                document.getElementById('edit-p-gs').value = p.theme.gradientStart;
+                document.getElementById('edit-p-ge').value = p.theme.gradientEnd;
+                document.getElementById('preset-editor-modal').classList.remove('hidden');
+            } catch (e) { alert("Edit Preset Error: " + e.message); }
         }
         function savePreset() {
-            const k = document.getElementById('edit-preset-id').value;
-            currentState.presets[k] = {
-                name: document.getElementById('edit-p-name').value,
-                type: 'standard',
-                message: document.getElementById('edit-p-msg').value,
-                subtext: document.getElementById('edit-p-sub').value,
-                theme: {
-                    textColor: document.getElementById('edit-p-text').value,
-                    backgroundColor: document.getElementById('edit-p-bg').value,
-                    gradientStart: document.getElementById('edit-p-gs').value,
-                    gradientEnd: document.getElementById('edit-p-ge').value
-                }
-            };
-            closeModal('preset-editor-modal'); renderAll();
+            try {
+                const k = document.getElementById('edit-preset-id').value;
+                currentState.presets[k] = {
+                    name: document.getElementById('edit-p-name').value,
+                    type: 'standard',
+                    message: document.getElementById('edit-p-msg').value,
+                    subtext: document.getElementById('edit-p-sub').value,
+                    theme: {
+                        textColor: document.getElementById('edit-p-text').value,
+                        backgroundColor: document.getElementById('edit-p-bg').value,
+                        gradientStart: document.getElementById('edit-p-gs').value,
+                        gradientEnd: document.getElementById('edit-p-ge').value
+                    }
+                };
+                closeModal('preset-editor-modal'); renderAll();
+            } catch (e) { alert("Save Preset Error: " + e.message); }
         }
         function copyPreset(k) {
-            const newId = 'preset_' + Date.now();
-            currentState.presets[newId] = JSON.parse(JSON.stringify(currentState.presets[k]));
-            currentState.presets[newId].name += " (Copy)";
-            renderAll();
+            try {
+                const newId = 'preset_' + Date.now();
+                currentState.presets[newId] = JSON.parse(JSON.stringify(currentState.presets[k]));
+                currentState.presets[newId].name += " (Copy)";
+                renderAll();
+            } catch (e) { alert("Copy Error: " + e.message); }
         }
         function createNewPreset() {
             const id = 'preset_' + Date.now();
@@ -654,27 +666,32 @@
         }
 
         function editStyle(k) {
-            const s = currentState.style_presets[k];
-            document.getElementById('edit-style-id').value = k;
-            document.getElementById('edit-s-name').value = s.name;
-            document.getElementById('edit-s-text').value = s.theme.textColor;
-            document.getElementById('edit-s-bg').value = s.theme.backgroundColor;
-            document.getElementById('edit-s-gs').value = s.theme.gradientStart;
-            document.getElementById('edit-s-ge').value = s.theme.gradientEnd;
-            document.getElementById('style-editor-modal').classList.remove('hidden');
+            try {
+                const s = currentState.style_presets[k];
+                document.getElementById('edit-style-id').value = k;
+                document.getElementById('edit-s-name').value = s.name;
+                document.getElementById('edit-s-text').value = s.theme.textColor;
+                document.getElementById('edit-s-bg').value = s.theme.backgroundColor;
+                document.getElementById('edit-s-gs').value = s.theme.gradientStart;
+                document.getElementById('edit-s-ge').value = s.theme.gradientEnd;
+                document.getElementById('style-editor-modal').classList.remove('hidden');
+            } catch (e) { alert("Edit Style Error: " + e.message); }
         }
         function saveStyle() {
-            const k = document.getElementById('edit-style-id').value;
-            currentState.style_presets[k] = {
-                name: document.getElementById('edit-s-name').value,
-                theme: {
-                    textColor: document.getElementById('edit-s-text').value,
-                    backgroundColor: document.getElementById('edit-s-bg').value,
-                    gradientStart: document.getElementById('edit-s-gs').value,
-                    gradientEnd: document.getElementById('edit-s-ge').value
-                }
-            };
-            closeModal('style-editor-modal'); renderAll();
+            try {
+                const k = document.getElementById('edit-style-id').value;
+                currentState.style_presets[k] = {
+                    name: document.getElementById('edit-s-name').value,
+                    theme: {
+                        textColor: document.getElementById('edit-s-text').value,
+                        backgroundColor: document.getElementById('edit-s-bg').value,
+                        gradientStart: document.getElementById('edit-s-gs').value,
+                        gradientEnd: document.getElementById('edit-s-ge').value
+                    }
+                };
+                closeModal('style-editor-modal');
+                renderAll();
+            } catch (e) { alert("Save Style Error: " + e.message); }
         }
         function createNewStyle() {
             const id = 'style_' + Date.now();
@@ -690,7 +707,6 @@
             document.getElementById('edit-p-ge').value = s.theme.gradientEnd;
         }
 
-        // --- UTILS ---
         function updateDropdowns() {
             const styles = document.getElementById('modal-style-select');
             const styles2 = document.getElementById('edit-p-style');
@@ -721,12 +737,14 @@
                 if (response.ok) {
                     const data = await response.json(); currentSha = data.content.sha;
                     alert('Saved Successfully!');
-                } else alert('Save Failed');
-            } catch (e) { alert('Error: ' + e.message); }
+                } else {
+                    alert('Save Failed: ' + response.statusText);
+                }
+            } catch (e) { alert('Push Error: ' + e.message); }
             btn.disabled = false;
         }
 
-        switchTab('tab-calendar');
+        switchTabSafe('tab-calendar');
         loadToken();
     </script>
 </body>
