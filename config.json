@@ -1,17 +1,116 @@
 {
-    "messages": {
-        "Monday": "A",
-        "Tuesday": "B",
-        "Wednesday": "C",
-        "Thursday": "D",
-        "Friday": "E",
-        "Saturday": "Enjoy the Weekend!",
-        "Sunday": "Enjoy the Weekend!"
+    "style_presets": {
+        "style_a": {
+            "name": "Library Blue",
+            "theme": {
+                "textColor": "#2c3e50",
+                "backgroundColor": "#ffffff",
+                "gradientStart": "#2c3e50",
+                "gradientEnd": "#4ca1af"
+            }
+        },
+        "style_b": {
+            "name": "Tech Pink",
+            "theme": {
+                "textColor": "#2c3e50",
+                "backgroundColor": "#ffffff",
+                "gradientStart": "#cc2b5e",
+                "gradientEnd": "#753a88"
+            }
+        }
     },
-    "theme": {
-        "textColor": "#2c3e50",
-        "backgroundColor": "#ffffff",
-        "gradientStart": "#2c3e50",
-        "gradientEnd": "#4ca1af"
+    "presets": {
+        "preset_a": {
+            "name": "A - Library",
+            "type": "standard",
+            "message": "A",
+            "subtext": "Library",
+            "theme": {
+                "textColor": "#2c3e50",
+                "backgroundColor": "#ffffff",
+                "gradientStart": "#2c3e50",
+                "gradientEnd": "#4ca1af"
+            }
+        },
+        "preset_b": {
+            "name": "B - Tech",
+            "type": "standard",
+            "message": "B",
+            "subtext": "Tech",
+            "theme": {
+                "textColor": "#2c3e50",
+                "backgroundColor": "#ffffff",
+                "gradientStart": "#cc2b5e",
+                "gradientEnd": "#753a88"
+            }
+        },
+        "preset_c": {
+            "name": "C - Art",
+            "type": "standard",
+            "message": "C",
+            "subtext": "Art",
+            "theme": {
+                "textColor": "#2c3e50",
+                "backgroundColor": "#ffffff",
+                "gradientStart": "#42275a",
+                "gradientEnd": "#734b6d"
+            }
+        },
+        "preset_d": {
+            "name": "D - Music",
+            "type": "standard",
+            "message": "D",
+            "subtext": "Music",
+            "theme": {
+                "textColor": "#2c3e50",
+                "backgroundColor": "#ffffff",
+                "gradientStart": "#614385",
+                "gradientEnd": "#516395"
+            }
+        },
+        "preset_e": {
+            "name": "E - PE",
+            "type": "standard",
+            "message": "E",
+            "subtext": "PE",
+            "theme": {
+                "textColor": "#2c3e50",
+                "backgroundColor": "#ffffff",
+                "gradientStart": "#02aab0",
+                "gradientEnd": "#00cdac"
+            }
+        },
+        "weekend": {
+            "name": "Weekend",
+            "type": "standard",
+            "message": "Weekend!",
+            "subtext": "Enjoy",
+            "theme": {
+                "textColor": "#666666",
+                "backgroundColor": "#ffffff",
+                "gradientStart": "#ff9966",
+                "gradientEnd": "#ff5e62"
+            }
+        }
+    },
+    "defaults": {
+        "Monday": "preset_a",
+        "Tuesday": "preset_b",
+        "Wednesday": "preset_c",
+        "Thursday": "preset_d",
+        "Friday": "preset_e",
+        "Saturday": "weekend",
+        "Sunday": "weekend"
+    },
+    "calendar": {
+        "2025-12-09": "preset_a",
+        "2025-12-10": "preset_b",
+        "2025-12-11": "preset_c",
+        "2025-12-12": "preset_d",
+        "2025-12-15": "preset_a",
+        "2025-12-16": "preset_b",
+        "2025-12-17": "preset_c",
+        "2025-12-18": "preset_d",
+        "2025-12-19": "preset_a"
     }
 }

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,7 +13,8 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-color: #ffffff; /* Clean white background */
+            background-color: #ffffff;
+            /* Clean white background */
             font-family: 'Inter', system-ui, -apple-system, sans-serif;
             color: #333;
             overflow: hidden;
@@ -25,14 +27,16 @@
         }
 
         #message {
-            font-size: 12rem; /* Big, bold letter */
+            font-size: 12rem;
+            /* Big, bold letter */
             font-weight: 700;
             line-height: 1;
             margin: 0;
-            background: linear-gradient(135deg, #2c3e50, #4ca1af); /* Subtle gradient for text */
+            background: linear-gradient(135deg, #2c3e50, #4ca1af);
+            /* Subtle gradient for text */
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            text-shadow: 0px 10px 20px rgba(0,0,0,0.1);
+            text-shadow: 0px 10px 20px rgba(0, 0, 0, 0.1);
         }
 
         #sub-text {
@@ -45,45 +49,115 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
     </style>
 </head>
+
 <body>
     <div id="day-container">
         <h1 id="message"></h1>
-        <div id="sub-text" id="day-name"></div>
+        <div id="sub-text"></div>
     </div>
 
     <script>
         const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-        const messages = {
-            'Monday': 'A',
-            'Tuesday': 'B',
-            'Wednesday': 'C',
-            'Thursday': 'D',
-            'Friday': 'E',
-            'Saturday': 'Enjoy the Weekend!',
-            'Sunday': 'Enjoy the Weekend!'
+
+        // Initial Empty State
+        let config = {
+            presets: {},
+            defaults: {},
+            calendar: {}
         };
 
-        const today = new Date();
-        const dayName = days[today.getDay()];
-        const message = messages[dayName] || '';
-
-        const messageEl = document.getElementById('message');
-        const subTextEl = document.getElementById('sub-text');
-
-        messageEl.textContent = message;
-        
-        // Adjust font size for longer messages
-        if (message.length > 1) {
-            messageEl.style.fontSize = '4rem';
+        async function loadConfig() {
+            try {
+                const response = await fetch('config.json?t=' + new Date().getTime());
+                if (response.ok) {
+                    config = await response.json();
+                }
+            } catch (e) {
+                console.warn('Could not load config', e);
+            }
+            updateDisplay();
         }
 
-        // Optional: Show the day name below, or just keep it clean
-        // subTextEl.textContent = dayName; 
+        function getTodayString() {
+            const today = new Date();
+            const yyyy = today.getFullYear();
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const dd = String(today.getDate()).padStart(2, '0');
+            return `${yyyy}-${mm}-${dd}`;
+        }
+
+        function updateDisplay() {
+            const today = new Date();
+            const dayName = days[today.getDay()]; // e.g., "Monday"
+            const dateStr = getTodayString(); // e.g., "2025-12-09"
+
+            let activePresetId = null;
+
+            // 1. Check Calendar Override
+            if (config.calendar && config.calendar[dateStr]) {
+                activePresetId = config.calendar[dateStr];
+            }
+            // 2. Check Weekly Default
+            else if (config.defaults && config.defaults[dayName]) {
+                activePresetId = config.defaults[dayName];
+            }
+
+            // 3. Resolve Preset
+            const preset = (config.presets && config.presets[activePresetId]) ? config.presets[activePresetId] : null;
+
+            if (preset) {
+                applyPreset(preset);
+            } else {
+                // Fallback if nothing configured
+                document.getElementById('message').textContent = dayName;
+                document.getElementById('sub-text').textContent = dateStr;
+                document.body.style.backgroundColor = '#ffffff';
+            }
+        }
+
+        function applyPreset(preset) {
+            const messageEl = document.getElementById('message');
+            const subTextEl = document.getElementById('sub-text');
+            const theme = preset.theme || {};
+
+            messageEl.textContent = preset.message || '';
+            subTextEl.textContent = preset.subtext || '';
+
+            // Apply Theme
+            document.body.style.backgroundColor = theme.backgroundColor || '#ffffff';
+
+            if (theme.gradientStart && theme.gradientEnd) {
+                messageEl.style.background = `linear-gradient(135deg, ${theme.gradientStart}, ${theme.gradientEnd})`;
+                messageEl.style.webkitBackgroundClip = 'text';
+                messageEl.style.webkitTextFillColor = 'transparent';
+            } else if (theme.textColor) {
+                messageEl.style.background = 'none';
+                messageEl.style.color = theme.textColor;
+                messageEl.style.webkitTextFillColor = theme.textColor;
+            }
+
+            // Adjust font size
+            if (preset.message.length > 2) {
+                messageEl.style.fontSize = '4rem';
+            } else {
+                messageEl.style.fontSize = '12rem';
+            }
+        }
+
+        loadConfig();
     </script>
 </body>
+
 </html>
