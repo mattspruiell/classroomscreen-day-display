@@ -8,7 +8,9 @@ This is a **custom widget** that you can embed into [Classroomscreen](https://cl
 
 * Show a different message or schedule for each day (e.g., "Monday: Library", "Tuesday: Art").
 * Use beautiful, color-coded themes.
-* Manage everything from an easy-to-use, mobile-friendly **Admin Dashboard** (no coding required after setup!).
+* Manage everything from an easy-to-use **Admin Dashboard** (no coding required after setup!).
+
+![Display Widget Preview](docs/images/display_view.png)
 
 ---
 
@@ -65,6 +67,16 @@ To save changes securely, you need a password called a "Personal Access Token".
     * **Calendar**: Click specific days to override the rule (e.g., "Field Day" on specific Friday).
     * **Styles**: Create new color themes.
 
+    ![Admin Calendar Tab](docs/images/admin_calendar.png)
+
+    * **Presets**: Manage your reusable messages.
+
+    ![Admin Presets Tab](docs/images/admin_presets.png)
+
+    * **Styles**: Create custom beautiful themes.
+
+    ![Admin Styles Tab](docs/images/admin_styles.png)
+
 ---
 
 ## 🖥️ How to use in Classroomscreen
@@ -82,7 +94,7 @@ To save changes securely, you need a password called a "Personal Access Token".
 </iframe>
 ```
 
-5. Resize the widget as needed. It will automatically update every day based on your settings!
+1. Resize the widget as needed. It will automatically update every day based on your settings!
 
 ---
 
