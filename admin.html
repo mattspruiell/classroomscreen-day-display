@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Widget Admin</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #f2f2f7;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+
+        input[type="color"] {
+            width: 100%;
+            height: 40px;
+            border: none;
+            border-radius: 8px;
+            padding: 0;
+            margin-bottom: 15px;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background: #007aff;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        button:disabled {
+            background: #ccc;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        #status {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
+
+        .success {
+            color: #28cd41;
+        }
+
+        .error {
+            color: #ff3b30;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Day Display Admin</h1>
+
+    <div id="auth-section" class="card">
+        <label>GitHub Personal Access Token</label>
+        <input type="password" id="gh-token" placeholder="ghp_..." autocomplete="current-password">
+        <button onclick="saveToken()">Login</button>
+        <p style="font-size: 0.8rem; color: #888; margin-top: 10px;">Token is saved securely on your device.</p>
+    </div>
+
+    <div id="app-section" class="hidden">
+        <div class="card">
+            <h3>Weekly Schedule</h3>
+            <div id="schedule-form"></div>
+        </div>
+
+        <div class="card">
+            <h3>Theme</h3>
+            <label>Text Color</label>
+            <input type="color" id="text-color">
+            <label>Background Color</label>
+            <input type="color" id="bg-color">
+            <label>Gradient Start (Optional)</label>
+            <input type="color" id="grad-start">
+            <label>Gradient End (Optional)</label>
+            <input type="color" id="grad-end">
+        </div>
+
+        <button onclick="saveChanges()" id="save-btn">Save Changes</button>
+        <div id="status"></div>
+        <button onclick="logout()"
+            style="background: transparent; color: #ff3b30; margin-top: 20px; font-size: 0.9rem;">Logout</button>
+    </div>
+
+    <script>
+        // CONFIGURATION
+        const REPO_OWNER = 'mattspruiell';
+        const REPO_NAME = 'classroomscreen-day-display';
+        const CONFIG_PATH = 'config.json';
+
+        let currentSha = null;
+
+        function loadToken() {
+            const token = localStorage.getItem('gh_token');
+            if (token) {
+                document.getElementById('gh-token').value = token;
+                showApp();
+            }
+        }
+
+        function saveToken() {
+            const token = document.getElementById('gh-token').value.trim();
+            if (token) {
+                localStorage.setItem('gh_token', token);
+                showApp();
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('gh_token');
+            location.reload();
+        }
+
+        async function showApp() {
+            document.getElementById('auth-section').classList.add('hidden');
+            document.getElementById('app-section').classList.remove('hidden');
+            await loadConfig();
+        }
+
+        async function loadConfig() {
+            setStatus('Loading...', 'normal');
+            try {
+                // Fetch Data from GitHub API to get SHA
+                const response = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${CONFIG_PATH}`, {
+                    headers: { 'Authorization': `token ${localStorage.getItem('gh_token')}` }
+                });
+
+                if (!response.ok) throw new Error(`GitHub API Error: ${response.status} ${response.statusText}`);
+
+                const data = await response.json();
+                currentSha = data.sha;
+                const content = JSON.parse(atob(data.content));
+
+                populateForm(content);
+                setStatus('Loaded successfully', 'normal');
+            } catch (e) {
+                console.error(e);
+                setStatus(e.message, 'error');
+                // Only auto-logout on specific auth errors to allow debugging
+                if (e.message.includes('401') || e.message.includes('403')) {
+                    setTimeout(() => {
+                        // Optional: ask user if they want to logout
+                        // logout(); 
+                    }, 2000);
+                }
+            }
+        }
+
+        function populateForm(config) {
+            const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+            const container = document.getElementById('schedule-form');
+            container.innerHTML = '';
+
+            days.forEach(day => {
+                const div = document.createElement('div');
+                div.innerHTML = `
+                    <label>${day}</label>
+                    <input type="text" id="day-${day}" value="${config.messages[day] || ''}">
+                `;
+                container.appendChild(div);
+            });
+
+            document.getElementById('text-color').value = config.theme.textColor || '#000000';
+            document.getElementById('bg-color').value = config.theme.backgroundColor || '#ffffff';
+            document.getElementById('grad-start').value = config.theme.gradientStart || '#000000';
+            document.getElementById('grad-end').value = config.theme.gradientEnd || '#000000';
+        }
+
+        async function saveChanges() {
+            setStatus('Saving...', 'normal');
+            const btn = document.getElementById('save-btn');
+            btn.disabled = true;
+
+            const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+            const newConfig = {
+                messages: {},
+                theme: {
+                    textColor: document.getElementById('text-color').value,
+                    backgroundColor: document.getElementById('bg-color').value,
+                    gradientStart: document.getElementById('grad-start').value,
+                    gradientEnd: document.getElementById('grad-end').value
+                }
+            };
+
+            days.forEach(day => {
+                newConfig.messages[day] = document.getElementById(`day-${day}`).value;
+            });
+
+            try {
+                const content = btoa(JSON.stringify(newConfig, null, 4));
+                const response = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${CONFIG_PATH}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `token ${localStorage.getItem('gh_token')}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: 'Update config via Admin UI',
+                        content: content,
+                        sha: currentSha
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    currentSha = data.content.sha; // Update SHA for next save
+                    setStatus('Changes saved! Widget will update shortly.', 'success');
+                } else {
+                    throw new Error('Save failed');
+                }
+            } catch (e) {
+                setStatus('Error saving: ' + e.message, 'error');
+            }
+            btn.disabled = false;
+        }
+
+        function setStatus(msg, type) {
+            const el = document.getElementById('status');
+            el.textContent = msg;
+            el.className = type === 'error' ? 'error' : (type === 'success' ? 'success' : '');
+        }
+
+        // Auto-login check
+        loadToken();
+    </script>
+</body>
+
+</html>
