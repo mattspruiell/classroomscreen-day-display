@@ -9,8 +9,8 @@
         "Sunday": "Enjoy the Weekend!"
     },
     "theme": {
-        "backgroundColor": "#ffffff",
         "textColor": "#2c3e50",
+        "backgroundColor": "#ffffff",
         "gradientStart": "#2c3e50",
         "gradientEnd": "#4ca1af"
     }
