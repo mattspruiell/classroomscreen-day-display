@@ -19,6 +19,9 @@
             }
         }
     },
+    "settings": {
+        "hideWeekends": true
+    },
     "presets": {
         "preset_a": {
             "name": "A - Library",

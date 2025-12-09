@@ -261,6 +261,11 @@
                     <h3 id="cal-month-title" style="margin:0;">December 2025</h3>
                     <button class="small secondary" onclick="changeMonth(1)">Next</button>
                 </div>
+                <div style="margin-bottom: 10px; text-align: right;">
+                    <label style="display:inline-flex; align-items:center; cursor:pointer;"><input type="checkbox"
+                            id="chk-hide-weekends" onchange="toggleHideWeekends()"
+                            style="width:auto; margin:0 5px 0 0;"> Hide Weekends</label>
+                </div>
                 <div class="calendar-grid" id="calendar-grid"></div>
             </div>
         </div>
@@ -315,6 +320,10 @@
             <div id="field-preset">
                 <label>Select Preset</label>
                 <select id="modal-preset-select"></select>
+                <label style="margin-top:10px; font-size:0.85rem; color:#666;">Override Style (Optional)</label>
+                <select id="modal-style-override">
+                    <option value="">-- No Override --</option>
+                </select>
             </div>
 
             <div id="field-adhoc" class="hidden">
@@ -328,10 +337,19 @@
 
             <div id="recurrence-section" style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 10px;">
                 <label>Recurrence</label>
-                <select id="modal-recur" onchange="toggleRecurFields()">
-                    <option value="none">Just this day</option>
-                    <option value="weekly">Weekly on [Day]</option>
-                </select>
+                <div class="row">
+                    <div class="col">
+                        <select id="modal-recur" onchange="toggleRecurFields()">
+                            <option value="none">Just this day</option>
+                            <option value="weekly">Weekly</option>
+                            <option value="ndays">Every N Days</option>
+                        </select>
+                    </div>
+                    <div class="col hidden" id="field-recur-count">
+                        <input type="number" id="modal-recur-count" value="1" min="1" placeholder="Days">
+                    </div>
+                </div>
+
                 <div id="field-until" class="hidden">
                     <label>Repeat Until</label>
                     <input type="date" id="modal-until">
@@ -404,7 +422,8 @@
         const REPO_NAME = 'classroomscreen-day-display';
         const CONFIG_PATH = 'config.json';
 
-        let currentState = { presets: {}, defaults: {}, calendar: {}, style_presets: {} };
+        // Defaults
+        let currentState = { presets: {}, defaults: {}, calendar: {}, style_presets: {}, settings: { hideWeekends: true } };
         let currentSha = null;
         let visibleMonth = new Date();
 
@@ -426,14 +445,17 @@
                 const response = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${CONFIG_PATH}`, {
                     headers: { 'Authorization': `token ${localStorage.getItem('gh_token')}` }
                 });
-
                 if (!response.ok) throw new Error(`${response.status}`);
-
                 const data = await response.json();
                 currentSha = data.sha;
                 currentState = JSON.parse(atob(data.content));
 
+                // MIGRATION / DEFAULTS
                 if (!currentState.style_presets) currentState.style_presets = {};
+                if (!currentState.settings) currentState.settings = { hideWeekends: true };
+
+                // Update UI state
+                document.getElementById('chk-hide-weekends').checked = currentState.settings.hideWeekends;
 
                 renderAll();
             } catch (e) {
@@ -448,14 +470,8 @@
                 document.querySelectorAll('#app-section > div[id^="tab-"]').forEach(d => d.classList.add('hidden'));
                 document.getElementById(id).classList.remove('hidden');
                 document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-
-                if (tabEl) {
-                    tabEl.classList.add('active');
-                } else {
-                    const autoTab = document.querySelector(`.tab[onclick*="'${id}'"]`);
-                    if (autoTab) autoTab.classList.add('active');
-                }
-
+                if (tabEl) { tabEl.classList.add('active'); }
+                else { const autoTab = document.querySelector(`.tab[onclick*="'${id}'"]`); if (autoTab) autoTab.classList.add('active'); }
                 if (id === 'tab-calendar') renderCalendarGrid();
             } catch (e) { alert('Tab Switch Error: ' + e.message); }
         }
@@ -470,22 +486,48 @@
             } catch (e) { alert("Render Error: " + e.message); }
         }
 
+        // --- CALENDAR LOGIC ---
+
+        function toggleHideWeekends() {
+            currentState.settings.hideWeekends = document.getElementById('chk-hide-weekends').checked;
+            renderCalendarGrid();
+        }
+
         function renderCalendarGrid() {
             try {
                 const grid = document.getElementById('calendar-grid');
                 grid.innerHTML = '';
 
+                const hideWeekends = currentState.settings.hideWeekends;
+                grid.style.gridTemplateColumns = hideWeekends ? 'repeat(5, 1fr)' : 'repeat(7, 1fr)';
+
                 const month = visibleMonth.getMonth();
                 const year = visibleMonth.getFullYear();
                 const firstDay = new Date(year, month, 1);
+                // getDay(): 0=Sun, 1=Mon...
                 const startingDay = firstDay.getDay();
                 const daysInMonth = new Date(year, month + 1, 0).getDate();
 
                 document.getElementById('cal-month-title').textContent = visibleMonth.toLocaleString('default', { month: 'long', year: 'numeric' });
 
-                for (let i = 0; i < startingDay; i++) { grid.appendChild(createDayEl('', 'disabled')); }
+                // Add Empty Cells for spacing
+                let empties = startingDay; // e.g. Wed=3. Need 3 empty slots (Sun,Mon,Tue).
+                // If hiding weekends, we need to adjust calculating empty slots.
+                // We map real days to visible column indices.
+                // Columns: Mon(0), Tue(1), Wed(2), Thu(3), Fri(4).
+                // If 1st is Wed(3), and we just want Mon, Tue empty?
+                // Logic: Iterate 0 to startingDay-1. If "Day i" is hidden, don't add slot.
+                for (let i = 0; i < startingDay; i++) {
+                    if (hideWeekends && (i === 0 || i === 6)) continue; // 0=Sun, 6=Sat
+                    grid.appendChild(createDayEl('', 'disabled'));
+                }
 
                 for (let d = 1; d <= daysInMonth; d++) {
+                    const date = new Date(year, month, d);
+                    const dayOfWeek = date.getDay(); // 0-6
+
+                    if (hideWeekends && (dayOfWeek === 0 || dayOfWeek === 6)) continue;
+
                     const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
                     const presetId = currentState.calendar[dateStr];
 
@@ -497,8 +539,8 @@
                             el.innerHTML += `<div class="cal-event" style="background:${preset.theme.gradientStart}">${preset.name}</div>`;
                         }
                     } else {
-                        const dayOfWeek = new Date(dateStr).toLocaleString('en-us', { weekday: 'long' });
-                        const defPresetId = currentState.defaults[dayOfWeek];
+                        const dayName = date.toLocaleString('en-us', { weekday: 'long' });
+                        const defPresetId = currentState.defaults[dayName];
                         if (defPresetId && currentState.presets[defPresetId]) {
                             el.innerHTML += `<div class="cal-event cal-default">${currentState.presets[defPresetId].name}</div>`;
                         }
@@ -521,12 +563,21 @@
             renderCalendarGrid();
         }
 
+        // --- MODAL LOGIC ---
+
         function openEventModal(dateStr) {
             try {
                 document.getElementById('modal-title').textContent = `Schedule for ${dateStr}`;
                 document.getElementById('modal-date').value = dateStr;
                 document.getElementById('modal-action').value = 'preset';
+
+                // Reset fields
+                document.getElementById('modal-recur').value = 'none';
+                document.getElementById('modal-recur-count').value = 1;
+                document.getElementById('modal-style-override').value = '';
+
                 toggleModalFields();
+                toggleRecurFields();
                 document.getElementById('event-modal').classList.remove('hidden');
             } catch (e) { alert("Open Modal Error: " + e.message); }
         }
@@ -540,6 +591,22 @@
         function toggleRecurFields() {
             const recur = document.getElementById('modal-recur').value;
             document.getElementById('field-until').className = (recur !== 'none') ? '' : 'hidden';
+            // Show "Every N Days" count input?
+            document.getElementById('field-recur-count').className = (recur === 'ndays') ? '' : 'hidden';
+        }
+
+        function addBusinessDays(date, days) {
+            // Helper to add 'days' skipping Sat/Sun
+            let d = new Date(date);
+            let added = 0;
+            while (added < days) {
+                d.setDate(d.getDate() + 1);
+                const day = d.getDay();
+                if (day !== 0 && day !== 6) { // If not Sun or Sat
+                    added++;
+                }
+            }
+            return d;
         }
 
         function saveEvent() {
@@ -547,12 +614,34 @@
                 const dateStr = document.getElementById('modal-date').value;
                 const action = document.getElementById('modal-action').value;
                 const recur = document.getElementById('modal-recur').value;
+                const hideWeekends = currentState.settings.hideWeekends;
+
                 let targetPresetId = null;
 
                 if (action === 'clear') {
                     delete currentState.calendar[dateStr];
+                    // Save Logic Below will handle recurrence clear potentially? 
+                    // No, "Clear" usually applies to date range too.
                 } else if (action === 'preset') {
-                    targetPresetId = document.getElementById('modal-preset-select').value;
+                    const basePresetId = document.getElementById('modal-preset-select').value;
+                    const overrideStyleId = document.getElementById('modal-style-override').value;
+
+                    if (overrideStyleId) {
+                        // Creates an "Ad-hoc" helper to apply style override
+                        targetPresetId = 'evt_override_' + Date.now();
+                        const base = currentState.presets[basePresetId];
+                        const style = currentState.style_presets[overrideStyleId];
+
+                        currentState.presets[targetPresetId] = {
+                            name: base.name, // Keep name
+                            type: 'adhoc',
+                            message: base.message,
+                            subtext: base.subtext || '',
+                            theme: { ...style.theme } // Use new style
+                        };
+                    } else {
+                        targetPresetId = basePresetId;
+                    }
                 } else if (action === 'adhoc') {
                     targetPresetId = 'evt_' + Date.now();
                     const styleId = document.getElementById('modal-style-select').value;
@@ -563,30 +652,63 @@
                         type: 'adhoc',
                         message: document.getElementById('modal-adhoc-msg').value,
                         subtext: document.getElementById('modal-adhoc-sub').value,
-                        theme: { ...style.theme } // copy theme
+                        theme: { ...style.theme }
                     };
                 }
 
-                if (targetPresetId) {
-                    const datesToSet = [dateStr];
-                    if (recur === 'weekly') {
-                        const untilVal = document.getElementById('modal-until').value;
-                        if (untilVal) {
-                            const until = new Date(untilVal);
-                            let curr = new Date(dateStr);
-                            while (curr < until) {
-                                curr.setDate(curr.getDate() + 7);
-                                if (curr > until) break;
-                                datesToSet.push(curr.toISOString().split('T')[0]);
-                            }
+                // Apply to Date(s)
+                const datesToSet = [];
+                // Always add the start date (even if "Clear", we might want to clear a range)
+                // For "Clear", targetPresetId is null.
+
+                // If clearing, we need to loop and 'delete'.
+                // If setting, we loop and 'set'.
+
+                const untilVal = document.getElementById('modal-until').value;
+                let curr = new Date(dateStr);
+                const limit = untilVal ? new Date(untilVal) : new Date(dateStr); // Default to single day range
+
+                // Recur Step
+                let step = 0;
+                let stepMode = 'none'; // none, weekly, ndays
+
+                if (recur === 'weekly') { stepMode = 'weekly'; }
+                else if (recur === 'ndays') {
+                    stepMode = 'ndays';
+                    step = parseInt(document.getElementById('modal-recur-count').value) || 1;
+                }
+
+                // If no recurrence, loop runs once.
+                // If recurrence, loop until limit.
+
+                while (curr <= limit) {
+                    const dStr = curr.toISOString().split('T')[0];
+                    datesToSet.push(dStr);
+
+                    if (stepMode === 'none') break; // Once
+
+                    // Advance 'curr'
+                    if (stepMode === 'weekly') {
+                        curr.setDate(curr.getDate() + 7);
+                    } else if (stepMode === 'ndays') {
+                        if (hideWeekends) {
+                            curr = addBusinessDays(curr, step);
+                        } else {
+                            curr.setDate(curr.getDate() + step);
                         }
                     }
-                    datesToSet.forEach(d => currentState.calendar[d] = targetPresetId);
                 }
+
+                datesToSet.forEach(d => {
+                    if (action === 'clear') delete currentState.calendar[d];
+                    else currentState.calendar[d] = targetPresetId;
+                });
+
                 closeModal('event-modal');
                 renderAll();
             } catch (e) { alert("Save Event Error: " + e.message); }
         }
+
 
         function renderPresetsList() {
             const c = document.getElementById('presets-list'); c.innerHTML = '';
