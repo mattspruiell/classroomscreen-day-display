@@ -17,6 +17,87 @@
                 "gradientStart": "#cc2b5e",
                 "gradientEnd": "#753a88"
             }
+        },
+        "style_cosmic": {
+            "name": "Cosmic/Sunset",
+            "theme": {
+                "textColor": "#ffffff",
+                "backgroundColor": "#2d1b4e",
+                "gradientStart": "#6a0572",
+                "gradientEnd": "#ff9a8b"
+            }
+        },
+        "style_aquatic": {
+            "name": "Aquatic",
+            "theme": {
+                "textColor": "#e0f7fa",
+                "backgroundColor": "#004d40",
+                "gradientStart": "#00897b",
+                "gradientEnd": "#4dd0e1"
+            }
+        },
+        "style_energetic": {
+            "name": "Energetic",
+            "theme": {
+                "textColor": "#fff3e0",
+                "backgroundColor": "#e65100",
+                "gradientStart": "#ff6f00",
+                "gradientEnd": "#ffd54f"
+            }
+        },
+        "style_tech": {
+            "name": "Cool/Tech",
+            "theme": {
+                "textColor": "#e1f5fe",
+                "backgroundColor": "#1a237e",
+                "gradientStart": "#304ffe",
+                "gradientEnd": "#b388ff"
+            }
+        },
+        "style_ocean": {
+            "name": "Ocean Blue",
+            "theme": {
+                "textColor": "#ffffff",
+                "backgroundColor": "#01579b",
+                "gradientStart": "#0288d1",
+                "gradientEnd": "#81d4fa"
+            }
+        },
+        "style_sanguine": {
+            "name": "Sanguine",
+            "theme": {
+                "textColor": "#ffebee",
+                "backgroundColor": "#b71c1c",
+                "gradientStart": "#d32f2f",
+                "gradientEnd": "#ef5350"
+            }
+        },
+        "style_lime": {
+            "name": "Luscious Lime",
+            "theme": {
+                "textColor": "#f9fbe7",
+                "backgroundColor": "#33691e",
+                "gradientStart": "#689f38",
+                "gradientEnd": "#dcedc8"
+            }
+        },
+        "style_purple_lake": {
+            "name": "Purple Lake",
+            "theme": {
+                "textColor": "#f3e5f5",
+                "backgroundColor": "#4a148c",
+                "gradientStart": "#7b1fa2",
+                "gradientEnd": "#e1bee7"
+            }
+        },
+        "style_kashmir": {
+            "name": "Kashmir",
+            "theme": {
+                "textColor": "#efebe9",
+                "backgroundColor": "#3e2723",
+                "gradientStart": "#5d4037",
+                "gradientEnd": "#8d6e63"
+            }
         }
     },
     "settings": {
