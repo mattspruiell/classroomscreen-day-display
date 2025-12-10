@@ -111,7 +111,7 @@
             "subtext": "Library",
             "theme": {
                 "textColor": "#2c3e50",
-                "backgroundColor": "#ffffff",
+                "backgroundColor": "#bd0505",
                 "gradientStart": "#2c3e50",
                 "gradientEnd": "#4ca1af"
             }
