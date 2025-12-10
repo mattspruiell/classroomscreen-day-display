@@ -98,6 +98,15 @@
                 "gradientStart": "#5d4037",
                 "gradientEnd": "#8d6e63"
             }
+        },
+        "style_1765329454309": {
+            "name": "Test",
+            "theme": {
+                "textColor": "#000000",
+                "backgroundColor": "#f20d0d",
+                "gradientStart": "#000000",
+                "gradientEnd": "#000000"
+            }
         }
     },
     "settings": {
@@ -111,7 +120,7 @@
             "subtext": "Library",
             "theme": {
                 "textColor": "#2c3e50",
-                "backgroundColor": "#bd0505",
+                "backgroundColor": "#ffffff",
                 "gradientStart": "#2c3e50",
                 "gradientEnd": "#4ca1af"
             }
@@ -175,6 +184,30 @@
                 "gradientStart": "#ff9966",
                 "gradientEnd": "#ff5e62"
             }
+        },
+        "evt_override_1765329486858": {
+            "name": "A - Library",
+            "type": "adhoc",
+            "message": "A",
+            "subtext": "Library",
+            "theme": {
+                "textColor": "#000000",
+                "backgroundColor": "#f20d0d",
+                "gradientStart": "#000000",
+                "gradientEnd": "#000000"
+            }
+        },
+        "evt_override_1765329546848": {
+            "name": "A - Library",
+            "type": "adhoc",
+            "message": "A",
+            "subtext": "Library",
+            "theme": {
+                "textColor": "#000000",
+                "backgroundColor": "#f20d0d",
+                "gradientStart": "#000000",
+                "gradientEnd": "#000000"
+            }
         }
     },
     "defaults": {
@@ -187,7 +220,7 @@
         "Sunday": "weekend"
     },
     "calendar": {
-        "2025-12-09": "preset_a",
+        "2025-12-09": "evt_override_1765329546848",
         "2025-12-10": "preset_b",
         "2025-12-11": "preset_c",
         "2025-12-12": "preset_d",
