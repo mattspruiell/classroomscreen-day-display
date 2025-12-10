@@ -220,6 +220,18 @@
                 "gradientStart": "#000000",
                 "gradientEnd": "#000000"
             }
+        },
+        "evt_override_1765329700716": {
+            "name": "A - Library",
+            "type": "adhoc",
+            "message": "A",
+            "subtext": "Library",
+            "theme": {
+                "textColor": "#000000",
+                "backgroundColor": "#f20d0d",
+                "gradientStart": "#000000",
+                "gradientEnd": "#000000"
+            }
         }
     },
     "defaults": {
@@ -232,7 +244,7 @@
         "Sunday": "weekend"
     },
     "calendar": {
-        "2025-12-09": "evt_override_1765329618386",
+        "2025-12-09": "evt_override_1765329700716",
         "2025-12-10": "preset_b",
         "2025-12-11": "preset_c",
         "2025-12-12": "preset_d",
