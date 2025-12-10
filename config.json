@@ -98,15 +98,6 @@
                 "gradientStart": "#5d4037",
                 "gradientEnd": "#8d6e63"
             }
-        },
-        "style_1765329454309": {
-            "name": "Test",
-            "theme": {
-                "textColor": "#000000",
-                "backgroundColor": "#f20d0d",
-                "gradientStart": "#000000",
-                "gradientEnd": "#000000"
-            }
         }
     },
     "settings": {
@@ -119,10 +110,10 @@
             "message": "A",
             "subtext": "Library",
             "theme": {
-                "textColor": "#000000",
-                "backgroundColor": "#f20d0d",
-                "gradientStart": "#000000",
-                "gradientEnd": "#000000"
+                "textColor": "#ffffff",
+                "backgroundColor": "#01579b",
+                "gradientStart": "#0288d1",
+                "gradientEnd": "#81d4fa"
             }
         },
         "preset_b": {
