@@ -13,7 +13,7 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-color: #ffffff;
+            background-color: transparent;
             /* Clean white background */
             font-family: 'Inter', system-ui, -apple-system, sans-serif;
             color: #333;
@@ -168,7 +168,7 @@
             subTextEl.textContent = preset.subtext || '';
 
             // Apply Theme
-            document.body.style.backgroundColor = theme.backgroundColor || '#ffffff';
+            document.body.style.backgroundColor = theme.backgroundColor || 'transparent';
 
             if (theme.gradientStart && theme.gradientEnd && theme.gradientStart !== theme.gradientEnd) {
                 messageEl.style.background = `linear-gradient(135deg, ${theme.gradientStart}, ${theme.gradientEnd})`;
