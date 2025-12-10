@@ -138,7 +138,7 @@
             // Apply Theme
             document.body.style.backgroundColor = theme.backgroundColor || '#ffffff';
 
-            if (theme.gradientStart && theme.gradientEnd) {
+            if (theme.gradientStart && theme.gradientEnd && theme.gradientStart !== theme.gradientEnd) {
                 messageEl.style.background = `linear-gradient(135deg, ${theme.gradientStart}, ${theme.gradientEnd})`;
                 messageEl.style.webkitBackgroundClip = 'text';
                 messageEl.style.webkitTextFillColor = 'transparent';
