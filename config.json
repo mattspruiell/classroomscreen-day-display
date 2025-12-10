@@ -119,10 +119,10 @@
             "message": "A",
             "subtext": "Library",
             "theme": {
-                "textColor": "#2c3e50",
-                "backgroundColor": "#ffffff",
-                "gradientStart": "#2c3e50",
-                "gradientEnd": "#4ca1af"
+                "textColor": "#000000",
+                "backgroundColor": "#f20d0d",
+                "gradientStart": "#000000",
+                "gradientEnd": "#000000"
             }
         },
         "preset_b": {
