@@ -890,7 +890,7 @@
                     });
                     if (response.ok) {
                         const data = await response.json(); currentSha = data.content.sha;
-                        alert('Saved Successfully!');
+                        alert('Saved Successfully!\n\nPlease allow up to 1-2 minutes for the changes to appear on the display (due to GitHub Pages cache).');
                     } else {
                         alert('Save Failed: ' + response.statusText);
                     }

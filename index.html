@@ -79,13 +79,45 @@
         };
 
         async function loadConfig() {
+            // Attempt to construct Raw URL for faster updates (avoiding Pages build delay)
+            // URL Format: https://<user>.github.io/<repo>/ -> https://raw.githubusercontent.com/<user>/<repo>/main/config.json
+            let rawUrl = null;
             try {
-                const response = await fetch('config.json?t=' + new Date().getTime());
-                if (response.ok) {
-                    config = await response.json();
+                const pathParts = window.location.pathname.split('/').filter(p => p);
+                if (window.location.hostname.includes('.github.io') && pathParts.length > 0) {
+                    const user = window.location.hostname.split('.')[0];
+                    const repo = pathParts[0];
+                    rawUrl = `https://raw.githubusercontent.com/${user}/${repo}/main/config.json`;
                 }
-            } catch (e) {
-                console.warn('Could not load config', e);
+            } catch (e) { console.log("Could not construct raw URL"); }
+
+            let loaded = false;
+
+            // Strategy 1: Fast Raw Fetch
+            if (rawUrl) {
+                try {
+                    const resp = await fetch(rawUrl + '?t=' + new Date().getTime());
+                    if (resp.ok) {
+                        config = await resp.json();
+                        loaded = true;
+                        console.log("Loaded config from Raw (Fast)");
+                    }
+                } catch (e) {
+                    console.warn("Raw fetch failed, falling back", e);
+                }
+            }
+
+            // Strategy 2: Relative Fetch (Fallback)
+            if (!loaded) {
+                try {
+                    const response = await fetch('config.json?t=' + new Date().getTime());
+                    if (response.ok) {
+                        config = await response.json();
+                        console.log("Loaded config from Standard/Local");
+                    }
+                } catch (e) {
+                    console.warn('Could not load config', e);
+                }
             }
             updateDisplay();
         }
