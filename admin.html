@@ -794,7 +794,7 @@
             }
             function createNewPreset() {
                 const id = 'preset_' + Date.now();
-                currentState.presets[id] = { name: "New Preset", type: "standard", message: "X", theme: { textColor: "#000", backgroundColor: "#fff" } };
+                currentState.presets[id] = { name: "New Preset", type: "standard", message: "X", theme: { textColor: "#000", backgroundColor: "transparent" } };
                 editPreset(id);
             }
             function deletePreset() {
@@ -835,7 +835,7 @@
             }
             function createNewStyle() {
                 const id = 'style_' + Date.now();
-                currentState.style_presets[id] = { name: "New Style", theme: { textColor: "#000", backgroundColor: "#fff" } };
+                currentState.style_presets[id] = { name: "New Style", theme: { textColor: "#000", backgroundColor: "transparent" } };
                 editStyle(id);
             }
             function deleteStyle() {

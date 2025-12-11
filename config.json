@@ -4,7 +4,7 @@
             "name": "Library Blue",
             "theme": {
                 "textColor": "#2c3e50",
-                "backgroundColor": "#ffffff",
+                "backgroundColor": "transparent",
                 "gradientStart": "#2c3e50",
                 "gradientEnd": "#4ca1af"
             }
@@ -13,7 +13,7 @@
             "name": "Tech Pink",
             "theme": {
                 "textColor": "#2c3e50",
-                "backgroundColor": "#ffffff",
+                "backgroundColor": "transparent",
                 "gradientStart": "#cc2b5e",
                 "gradientEnd": "#753a88"
             }
@@ -22,7 +22,7 @@
             "name": "Cosmic/Sunset",
             "theme": {
                 "textColor": "#ffffff",
-                "backgroundColor": "#2d1b4e",
+                "backgroundColor": "transparent",
                 "gradientStart": "#6a0572",
                 "gradientEnd": "#ff9a8b"
             }
@@ -31,7 +31,7 @@
             "name": "Aquatic",
             "theme": {
                 "textColor": "#e0f7fa",
-                "backgroundColor": "#004d40",
+                "backgroundColor": "transparent",
                 "gradientStart": "#00897b",
                 "gradientEnd": "#4dd0e1"
             }
@@ -40,7 +40,7 @@
             "name": "Energetic",
             "theme": {
                 "textColor": "#fff3e0",
-                "backgroundColor": "#e65100",
+                "backgroundColor": "transparent",
                 "gradientStart": "#ff6f00",
                 "gradientEnd": "#ffd54f"
             }
@@ -49,7 +49,7 @@
             "name": "Cool/Tech",
             "theme": {
                 "textColor": "#e1f5fe",
-                "backgroundColor": "#1a237e",
+                "backgroundColor": "transparent",
                 "gradientStart": "#304ffe",
                 "gradientEnd": "#b388ff"
             }
@@ -58,7 +58,7 @@
             "name": "Ocean Blue",
             "theme": {
                 "textColor": "#ffffff",
-                "backgroundColor": "#01579b",
+                "backgroundColor": "transparent",
                 "gradientStart": "#0288d1",
                 "gradientEnd": "#81d4fa"
             }
@@ -67,7 +67,7 @@
             "name": "Sanguine",
             "theme": {
                 "textColor": "#ffebee",
-                "backgroundColor": "#b71c1c",
+                "backgroundColor": "transparent",
                 "gradientStart": "#d32f2f",
                 "gradientEnd": "#ef5350"
             }
@@ -76,7 +76,7 @@
             "name": "Luscious Lime",
             "theme": {
                 "textColor": "#f9fbe7",
-                "backgroundColor": "#33691e",
+                "backgroundColor": "transparent",
                 "gradientStart": "#689f38",
                 "gradientEnd": "#dcedc8"
             }
@@ -85,7 +85,7 @@
             "name": "Purple Lake",
             "theme": {
                 "textColor": "#f3e5f5",
-                "backgroundColor": "#4a148c",
+                "backgroundColor": "transparent",
                 "gradientStart": "#7b1fa2",
                 "gradientEnd": "#e1bee7"
             }
@@ -94,7 +94,7 @@
             "name": "Kashmir",
             "theme": {
                 "textColor": "#efebe9",
-                "backgroundColor": "#3e2723",
+                "backgroundColor": "transparent",
                 "gradientStart": "#5d4037",
                 "gradientEnd": "#8d6e63"
             }
@@ -111,7 +111,7 @@
             "subtext": "Library",
             "theme": {
                 "textColor": "#ffffff",
-                "backgroundColor": "#01579b",
+                "backgroundColor": "transparent",
                 "gradientStart": "#0288d1",
                 "gradientEnd": "#81d4fa"
             }
@@ -123,7 +123,7 @@
             "subtext": "Tech",
             "theme": {
                 "textColor": "#2c3e50",
-                "backgroundColor": "#ffffff",
+                "backgroundColor": "transparent",
                 "gradientStart": "#cc2b5e",
                 "gradientEnd": "#753a88"
             }
@@ -135,7 +135,7 @@
             "subtext": "Art",
             "theme": {
                 "textColor": "#2c3e50",
-                "backgroundColor": "#ffffff",
+                "backgroundColor": "transparent",
                 "gradientStart": "#42275a",
                 "gradientEnd": "#734b6d"
             }
@@ -147,7 +147,7 @@
             "subtext": "Music",
             "theme": {
                 "textColor": "#2c3e50",
-                "backgroundColor": "#ffffff",
+                "backgroundColor": "transparent",
                 "gradientStart": "#614385",
                 "gradientEnd": "#516395"
             }
@@ -159,7 +159,7 @@
             "subtext": "PE",
             "theme": {
                 "textColor": "#2c3e50",
-                "backgroundColor": "#ffffff",
+                "backgroundColor": "transparent",
                 "gradientStart": "#02aab0",
                 "gradientEnd": "#00cdac"
             }
@@ -171,7 +171,7 @@
             "subtext": "Enjoy",
             "theme": {
                 "textColor": "#666666",
-                "backgroundColor": "#ffffff",
+                "backgroundColor": "transparent",
                 "gradientStart": "#ff9966",
                 "gradientEnd": "#ff5e62"
             }
@@ -183,7 +183,7 @@
             "subtext": "Library",
             "theme": {
                 "textColor": "#000000",
-                "backgroundColor": "#f20d0d",
+                "backgroundColor": "transparent",
                 "gradientStart": "#000000",
                 "gradientEnd": "#000000"
             }
@@ -195,7 +195,7 @@
             "subtext": "Library",
             "theme": {
                 "textColor": "#000000",
-                "backgroundColor": "#f20d0d",
+                "backgroundColor": "transparent",
                 "gradientStart": "#000000",
                 "gradientEnd": "#000000"
             }
@@ -207,7 +207,7 @@
             "subtext": "Enjoy",
             "theme": {
                 "textColor": "#000000",
-                "backgroundColor": "#f20d0d",
+                "backgroundColor": "transparent",
                 "gradientStart": "#000000",
                 "gradientEnd": "#000000"
             }
@@ -219,7 +219,7 @@
             "subtext": "Library",
             "theme": {
                 "textColor": "#000000",
-                "backgroundColor": "#f20d0d",
+                "backgroundColor": "transparent",
                 "gradientStart": "#000000",
                 "gradientEnd": "#000000"
             }
@@ -231,7 +231,7 @@
             "subtext": "Library",
             "theme": {
                 "textColor": "#2c3e50",
-                "backgroundColor": "#ffffff",
+                "backgroundColor": "transparent",
                 "gradientStart": "#2c3e50",
                 "gradientEnd": "#4ca1af"
             }
